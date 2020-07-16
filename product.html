@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div id="app" class="container mt-3">
+        <div>
+            <div class="text-right mt-4">
+                <button class="btn btn-primary" @click="openModal('new')">
+                    建立新的產品
+                </button>
+                <button class="btn btn-secondary" @click="signout">
+                    登出
+                </button>
+            </div>
+            <table class="table mt-4">
+                <thead>
+                    <tr>
+                        <th width="120">
+                            分類
+                        </th>
+                        <th>產品名稱</th>
+                        <th width="120">
+                            原價
+                        </th>
+                        <th width="120">
+                            售價
+                        </th>
+                        <th width="100">
+                            是否啟用
+                        </th>
+                        <th width="120">
+                            編輯
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in products" :key="item.id">
+                        <td>{{ item.category }}</td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.origin_price }}</td>
+                        <td>{{ item.price }}</td>
+                        <td>
+                            <span v-if="item.enabled" class="text-primary">啟用</span>
+                            <span v-else>未啟用</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary btn-sm"
+                                    @click="openModal('update', item)">編輯</button>
+                                <button class="btn btn-outline-danger btn-sm"
+                                    @click="openModal('delete', item)">刪除</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- 分頁元件 -->
+            <page-component :pages="pagination" @changepage="getProduct()"></page-component>
+            <!-- Modal -->
+            <div id="productModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content border-0">
+                        <div class="modal-header bg-dark text-white">
+                            <h5 id="exampleModalLabel" class="modal-title">
+                                <span>新增產品</span>
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div v-for="i in 5" :key="i + 'img'" class="form-group">
+                                        <label :for="'img' + i">輸入圖片網址</label>
+                                        <input :id="'img' + i" type="text" class="form-control" placeholder="請輸入圖片連結"
+                                            v-model="copyProduct.imageUrl[i - 1]">
+                                    </div>
+                                    <img class="img-fluid" alt="" :src="copyProduct.imageUrl[0]">
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="title">標題</label>
+                                        <input id="title" type="text" class="form-control" placeholder="請輸入標題"
+                                            v-model="copyProduct.title">
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="category">分類</label>
+                                            <input id="category" type="text" class="form-control" placeholder="請輸入分類"
+                                                v-model="copyProduct.category">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="price">單位</label>
+                                            <input id="unit" type="unit" class="form-control" placeholder="請輸入單位"
+                                                v-model="copyProduct.unit">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="origin_price">原價</label>
+                                            <input id="origin_price" type="number" class="form-control"
+                                                placeholder="請輸入原價" v-model="copyProduct.origin_price">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="price">售價</label>
+                                            <input id="price" type="number" class="form-control" placeholder="請輸入售價"
+                                                v-model="copyProduct.price">
+                                        </div>
+                                    </div>
+                                    <hr>
+
+                                    <div class="form-group">
+                                        <label for="description">產品描述</label>
+                                        <textarea id="description" type="text" class="form-control"
+                                            placeholder="請輸入產品描述" v-model="copyProduct.description"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="content">說明內容</label>
+                                        <textarea id="description" type="text" class="form-control"
+                                            placeholder="請輸入說明內容" v-model="copyProduct.content"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input id="is_enabled" class="form-check-input" type="checkbox"
+                                                v-model="copyProduct.enabled">
+                                            <label class="form-check-label" for="is_enabled">是否啟用</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                取消
+                            </button>
+                            <button type="button" class="btn btn-primary" @click="updateProduct">
+                                確認
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="delProductModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content border-0">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 id="exampleModalLabel" class="modal-title">
+                                <span>刪除產品</span>
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            是否刪除
+                            <strong class="text-danger">{{ copyProduct.title }}</strong> 商品(刪除後將無法恢復)。
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                取消
+                            </button>
+                            <button type="button" class="btn btn-danger" @click="delProduct">
+                                確認刪除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!-- bootstrap js -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <!-- vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js"></script>
+    <script src="js/product.js"></script>
+</body>
+
+</html>
