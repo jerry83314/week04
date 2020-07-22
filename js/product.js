@@ -43,6 +43,7 @@ var app = new Vue({
         },
         pagination: {},
         token: '',
+        filePath: '',
     },
     created() {
         const vm = this;
@@ -188,6 +189,35 @@ var app = new Vue({
         signout() {
             document.cookie = `myToken=; expires=;`;
             location.href="login.html"
+        },
+        // 圖片上傳測試
+        uploadFile() {
+            const vm = this;
+            
+            // api 路徑
+            const url = `${apiPath}/api/${uuid}/admin/storage`;
+            
+            // 取得 DOM 元素
+            const fileImg = document.querySelector('#file').files[0];
+            // console.dir(file);
+
+            // 轉成 formData
+            const formData = new FormData();
+            formData.append('file', fileImg);
+
+            // token 處理
+            axios.defaults.headers.common['Authorization'] = `Bearer ${ vm.token }`;
+
+            // ajax 處理，使用 post，並宣告使用 formData 格式
+            axios.post(url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+                .then(function(res){
+                    console.log(res)
+                    vm.filePath = res.data.data.path;
+                })
         }
     }
 });

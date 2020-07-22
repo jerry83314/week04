@@ -62,6 +62,16 @@
                     </tr>
                 </tbody>
             </table>
+            <!-- 測試圖片上傳功能-->
+            <div class="row">
+                <div class="col-md-4">
+                    <img :src="filePath" alt="" class="img-fluid">
+                </div>
+                <div class="col-md-8">
+                    <input type="file" id="file" class="form-control" @change="uploadFile">
+                    {{ filePath }}
+                </div>
+            </div>
             <!-- 分頁元件 -->
             <page-component :pages="pagination" @changepage="getProduct()"></page-component>
             <!-- Modal -->
