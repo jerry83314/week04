@@ -1,23 +1,23 @@
 // console.log('test');
 
-var apiPath = 'https://course-ec-api.hexschool.io';
-var uuid = '87c11b32-8e80-4b1b-aaaa-2c44664c537e';
+// var apiPath = 'https://course-ec-api.hexschool.io';
+// var uuid = '87c11b32-8e80-4b1b-aaaa-2c44664c537e';
 
 Vue.component('page-component',{
     props: ['pages'],
     template: `
     <nav aria-label="Page navigation example">
         <ul class="pagination">
-            <li class="page-item">
+            <li class="page-item" :class="{'disabled': pages.current_page === 1}">
                 <a class="page-link" href="#" aria-label="Previous" @click.prevent="changePageEvent(pages.current_page - 1)">
                 <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
-            <li v-for="(page, index) in pages.total_pages" :key="index" class="page-item">
-                <a class="page-link" href="#">{{ page }}</a>
+            <li v-for="(page, index) in pages.total_pages" :key="index" class="page-item" :class="{ 'active':page === pages.current_page}">
+                <a class="page-link" href="#" @click.prevent="changePageEvent(page)">{{ page }}</a>
             </li>
 
-            <li class="page-item">
+            <li class="page-item" :class="{'disabled': pages.current_page === pages.total_pages}">
                 <a class="page-link" href="#" aria-label="Next" @click.prevent="changePageEvent(pages.current_page + 1)">
                 <span aria-hidden="true">&raquo;</span>
                 </a>
@@ -27,9 +27,8 @@ Vue.component('page-component',{
     `,
     methods: {
         changePageEvent: function(page){
-            this.$emit('changepage');
+            this.$emit('changepage', page);
             console.log(page);
-            
         }
     }
 });
@@ -44,6 +43,10 @@ var app = new Vue({
         pagination: {},
         token: '',
         filePath: '',
+        user: {
+            apiPath: 'https://course-ec-api.hexschool.io',
+            uuid: '87c11b32-8e80-4b1b-aaaa-2c44664c537e'
+        }
     },
     created() {
         const vm = this;
@@ -95,7 +98,7 @@ var app = new Vue({
                 axios.defaults.headers.common['Authorization'] = `Bearer ${ vm.token }`;
 
                 // api url , id 使用 copyProduct 的 id
-                const url = `${apiPath}/api/${uuid}/admin/ec/product/${vm.copyProduct.id}`; 
+                const url = `${vm.user.apiPath}/api/${vm.user.uuid}/admin/ec/product/${vm.copyProduct.id}`; 
 
                 // 使用 patch 更新產品資訊
                 axios.patch(url, vm.copyProduct)
@@ -111,7 +114,7 @@ var app = new Vue({
                 axios.defaults.headers.common['Authorization'] = `Bearer ${ vm.token }`;
 
                 // api url
-                const url = `${apiPath}/api/${uuid}/admin/ec/product`;
+                const url = `${vm.user.apiPath}/api/${vm.user.uuid}/admin/ec/product`;
 
                 // 使用 post 方法新增品項
                 axios.post(url, vm.copyProduct)
@@ -147,7 +150,7 @@ var app = new Vue({
             axios.defaults.headers.common['Authorization'] = `Bearer ${ vm.token }`;
 
             // api url , id 使用 copyProduct 的 id
-            const url = `${apiPath}/api/${uuid}/admin/ec/product/${vm.copyProduct.id}`;
+            const url = `${vm.user.apiPath}/api/${vm.user.uuid}/admin/ec/product/${vm.copyProduct.id}`;
             
             axios.delete(url)
                 .then(function(res){
@@ -170,7 +173,7 @@ var app = new Vue({
             const vm = this;
 
             // api 路徑
-            const url = `${apiPath}/api/${uuid}/admin/ec/products?page=${page}`;
+            const url = `${vm.user.apiPath}/api/${vm.user.uuid}/admin/ec/products?page=${page}`;
 
             // token 處理
             axios.defaults.headers.common['Authorization'] = `Bearer ${ vm.token }`;
@@ -195,7 +198,7 @@ var app = new Vue({
             const vm = this;
             
             // api 路徑
-            const url = `${apiPath}/api/${uuid}/admin/storage`;
+            const url = `${vm.user.apiPath}/api/${vm.user.uuid}/admin/storage`;
             
             // 取得 DOM 元素
             const fileImg = document.querySelector('#file').files[0];
